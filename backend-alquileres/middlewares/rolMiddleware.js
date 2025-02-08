@@ -6,4 +6,4 @@ const verificarRol = (rolesPermitidos) => (req, res, next) => {
 };
 
 
-module.exports = verificarToken;
+module.exports = verificarRol;

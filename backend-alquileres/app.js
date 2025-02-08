@@ -3,6 +3,8 @@ const cors = require('cors');
 const db = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const inmuebleRoutes = require('./routes/inmuebleRoutes');
+const espacioRoutes = require('./routes/espacioRoutes');
+
 
 require('dotenv').config();
 
@@ -15,6 +17,8 @@ app.use(express.json());
 // Rutas
 app.use('/api/auth', authRoutes);
 app.use('/api/inmuebles', inmuebleRoutes);
+app.use('/api/espacios', espacioRoutes);
+
 
 // Ruta de prueba
 app.get('/', (req, res) => {

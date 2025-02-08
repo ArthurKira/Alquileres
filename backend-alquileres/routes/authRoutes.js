@@ -16,4 +16,6 @@ router.get('/perfil', verificarToken, (req, res) => {
     res.json({ mensaje: 'Bienvenido a tu perfil', usuario: req.usuario });
 });
 
+
+
 module.exports = router;
