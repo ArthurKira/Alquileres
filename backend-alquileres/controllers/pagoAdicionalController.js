@@ -1,4 +1,4 @@
-const PagoAdicional = require('../models/PagoAdicional');
+const PagoAdicional = require('../models/pagoAdicionalModel');
 
 // Crear un pago adicional
 const crearPagoAdicional = async (req, res) => {

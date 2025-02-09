@@ -14,11 +14,11 @@ class Espacio {
     // Obtener todos los espacios de un piso
     static async obtenerPorPiso(pisoId) {
         const [espacios] = await db.query(`
-      SELECT e.*, t.nombre AS tipo_espacio 
-      FROM espacios e
-      JOIN tipoEspacios t ON e.tipoEspacio_id = t.id
-      WHERE e.piso_id = ?
-    `, [pisoId]);
+            SELECT e.*, t.nombre AS tipo_espacio
+            FROM espacios e
+                     JOIN tipoEspacios t ON e.tipoEspacio_id = t.id
+            WHERE e.piso_id = ?
+        `, [pisoId]);
         return espacios;
     }
 

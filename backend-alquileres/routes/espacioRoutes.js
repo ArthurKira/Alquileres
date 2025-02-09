@@ -4,29 +4,31 @@ const espacioController = require('../controllers/espacioController');
 const verificarToken = require('../middlewares/authMiddleware');
 const verificarRol = require('../middlewares/rolMiddleware');
 
-// Obtener espacios de un piso (público)
-router.get('/pisos/:pisoId/espacios', espacioController.obtenerEspaciosPorPiso);
+// Obtener todos los espacios de un piso
+router.get('/inmuebles/:inmuebleId/pisos/:pisoId/espacios', espacioController.obtenerEspaciosPorPiso);
 
-// Obtener un espacio por ID (público)
-router.get('/:id', espacioController.obtenerEspacioPorId);
+// Obtener un espacio específico
+router.get('/inmuebles/:inmuebleId/pisos/:pisoId/espacios/:espacioId', espacioController.obtenerEspacioPorId);
 
-// Rutas protegidas (solo administradores o propietarios)
+// Crear un nuevo espacio en un piso
 router.post(
-    '/pisos/:pisoId/espacios',
+    '/inmuebles/:inmuebleId/pisos/:pisoId/espacios',
     verificarToken,
     verificarRol(['administrador', 'propietario']),
     espacioController.crearEspacio
 );
 
+// Actualizar un espacio
 router.put(
-    '/:id',
+    '/inmuebles/:inmuebleId/pisos/:pisoId/espacios/:espacioId',
     verificarToken,
     verificarRol(['administrador', 'propietario']),
     espacioController.actualizarEspacio
 );
 
+// Eliminar un espacio
 router.delete(
-    '/:id',
+    '/inmuebles/:inmuebleId/pisos/:pisoId/espacios/:espacioId',
     verificarToken,
     verificarRol(['administrador', 'propietario']),
     espacioController.eliminarEspacio
