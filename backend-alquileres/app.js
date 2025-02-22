@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const db = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
+const personaRoutes=require('./routes/personaRoutes');
 const inmuebleRoutes = require('./routes/inmuebleRoutes');
 const espacioRoutes = require('./routes/espacioRoutes');
 const reservaRoutes = require('./routes/reservaRoutes');
@@ -25,6 +26,7 @@ app.use(express.json());
 
 // Rutas
 app.use('/api/auth', authRoutes);
+app.use('/api/personas', personaRoutes);
 app.use('/api/inmuebles', inmuebleRoutes);
 app.use('/api', espacioRoutes);//espacios
 app.use('/api/reservas', reservaRoutes);
