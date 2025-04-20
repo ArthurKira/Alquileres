@@ -4,6 +4,9 @@ const espacioController = require('../controllers/espacioController');
 const verificarToken = require('../middlewares/authMiddleware');
 const verificarRol = require('../middlewares/rolMiddleware');
 
+// Obtener todos los espacios
+router.get('/obtenerespacios', espacioController.obtenerEspacio);
+
 // Obtener todos los espacios de un piso
 router.get('/inmuebles/:inmuebleId/pisos/:pisoId/espacios', espacioController.obtenerEspaciosPorPiso);
 

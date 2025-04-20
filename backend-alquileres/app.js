@@ -15,6 +15,7 @@ const pagoAdicionalRoutes = require('./routes/pagoAdicionalRoutes');
 const reporteRoutes = require('./routes/reporteRoutes');
 const detalleReporteRoutes = require('./routes/detalleReporteRoutes');
 const gastoRoutes = require('./routes/gastoRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 
 require('dotenv').config();
 
@@ -28,17 +29,18 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/personas', personaRoutes);
 app.use('/api/inmuebles', inmuebleRoutes);
-app.use('/api', espacioRoutes);//espacios
+app.use('/api/espacios', espacioRoutes);//espacios
 app.use('/api/reservas', reservaRoutes);
 app.use('/api/tipos-espacio', tipoEspacioRoutes);
-app.use('/api/tipos-inmueble', tipoInmuebleRoutes);
-app.use('/api/pisos', pisoRoutes); // Nueva línea
-app.use('/api/pagos', pagoRoutes); // Nueva línea
-app.use('/api/contratos', contratoRoutes); // Nueva línea
+app.use('/api/tipoInmueble', tipoInmuebleRoutes);
+app.use('/api/pisos', pisoRoutes);
+app.use('/api/pagos', pagoRoutes);
+app.use('/api/contratos', contratoRoutes);
 app.use('/api/pagos-adicionales', pagoAdicionalRoutes); // Nueva línea
 app.use('/api/reportes', reporteRoutes); // Nueva línea
 app.use('/api/detalles-reportes', detalleReporteRoutes); // Nueva línea
 app.use('/api/gastos', gastoRoutes); // Nueva línea
+app.use('/api/dashboard', dashboardRoutes);
 
 // Ruta de prueba
 app.get('/', (req, res) => {

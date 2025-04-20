@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const inmuebleController = require('../controllers/inmuebleController');
+const inmuebleController = require('../controllers/inmueblecontroller');
 const verificarToken = require('../middlewares/authMiddleware');
 // const verificarRol = require('../middlewares/rolMiddleware'); // Crear este middleware
 

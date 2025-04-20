@@ -51,6 +51,16 @@ class Espacio {
         const [result] = await db.query('DELETE FROM espacios WHERE id = ?', [id]);
         return result.affectedRows > 0;
     }
+
+    // Obtener todos los espacios
+    static async obtenerEspacio() {
+        const [espaciosG] = await db.query(`
+            SELECT e.*, t.nombre AS tipo_espacio
+            FROM espacios e
+                     JOIN tipoEspacios t ON e.tipoEspacio_id = t.id
+        `);
+        return espaciosG;
+    }
 }
 
 module.exports = Espacio;
