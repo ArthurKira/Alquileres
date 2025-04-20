@@ -10,6 +10,9 @@ router.post('/', verificarToken, verificarRol(['inquilino', 'administrador']), p
 // Obtener todos los pagos de un contrato
 router.get('/contratos/:contratoId/pagos', verificarToken, pagoController.obtenerPagosPorContrato);
 
+// Obtener todos los pagos por inquilino
+router.get('/buscador', verificarToken, pagoController.obtenerPagosPorInquilino);
+
 // Obtener un pago por ID
 router.get('/:id', verificarToken, pagoController.obtenerPagoPorId);
 

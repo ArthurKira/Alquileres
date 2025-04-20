@@ -22,6 +22,17 @@ const obtenerPagosPorContrato = async (req, res) => {
     }
 };
 
+// Obtener todos los pagos por inquilino
+const obtenerPagosPorInquilino = async (req, res) => {
+    try {
+        const { dni, nombre } = req.query;
+        const pagos = await Pago.obtenerPagosPorInquilino(dni, nombre);
+        res.json(pagos);
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al obtener los pagos', error: error.message });
+    }
+};
+
 // Obtener un pago por ID
 const obtenerPagoPorId = async (req, res) => {
     try {
@@ -66,6 +77,7 @@ const eliminarPago = async (req, res) => {
 module.exports = {
     crearPago,
     obtenerPagosPorContrato,
+    obtenerPagosPorInquilino,
     obtenerPagoPorId,
     actualizarPago,
     eliminarPago,

@@ -23,6 +23,56 @@ class Pago {
         return pagos[0];
     }
 
+    //Obtener todos los pagos por inquilino
+    static async obtenerPagosPorInquilino(dni = null, nombre = null) {
+        let sql = `
+            SELECT
+                pagos.id,
+                pagos.contrato_id,
+                pagos.monto,
+                pagos.metodo_pago,
+                pagos.tipo_pago,
+                pagos.estado,
+                pagos.fecha_pago,
+                contratos.inquilino_id,
+                personas.nombre AS inquilino_nombre,
+                personas.apellido AS inquilino_apellido,
+                personas.dni AS inquilino_dni
+            FROM pagos
+            LEFT JOIN contratos ON pagos.contrato_id = contratos.id
+            LEFT JOIN personas ON contratos.inquilino_id = personas.id
+        `;
+
+        const params = [];
+        const conditions = [];
+
+        // Si se proporciona un DNI, agregamos la condición correspondiente
+        if (dni) {
+            conditions.push('personas.dni = ?');
+            params.push(dni);
+        }
+
+        // Si se proporciona un nombre, buscamos por nombre o apellido
+        if (nombre) {
+            conditions.push('(personas.nombre LIKE ? OR personas.apellido LIKE ?)');
+            params.push(`%${nombre}%`);
+            params.push(`%${nombre}%`);
+        }
+
+        // Si hay condiciones de búsqueda, las agregamos a la consulta
+        if (conditions.length > 0) {
+            sql += ' WHERE ' + conditions.join(' OR ');
+        }
+
+        // Ordenamos los resultados por el ID de los pagos en orden descendente
+        sql += ' ORDER BY pagos.id DESC';
+
+        // Ejecutamos la consulta con los parámetros adecuados
+        const [pagos] = await db.query(sql, params);
+        return pagos;
+    }
+
+
     // Actualizar un pago
     static async actualizar(id, nuevosDatos) {
         const campos = Object.keys(nuevosDatos);
