@@ -22,6 +22,10 @@ router.get('/inquilinos/:inquilinoId', verificarToken, contratoController.obtene
 // Obtener todos los contratos de un propietario
 router.get('/propietarios/:propietarioId', verificarToken, contratoController.obtenerContratosPorPropietario);
 
+//revisar cambio
+router.get('/inmuebles/:inmuebleId', verificarToken, contratoController.obtenerContratosPorInmueble);
+
+
 // Obtener un contrato por ID
 router.get('/:id', verificarToken, contratoController.obtenerContratoPorId);
 
@@ -30,5 +34,8 @@ router.put('/:id', verificarToken, verificarRol(['administrador', 'propietario']
 
 // Eliminar un contrato
 router.delete('/:id', verificarToken, verificarRol(['administrador', 'propietario']), contratoController.eliminarContrato);
+
+// Obtener todos los contratos con información completa
+router.get('/info', verificarToken, verificarRol(['administrador', 'propietario']), contratoController.obtenerContratosConInfo);
 
 module.exports = router;
