@@ -3,10 +3,10 @@ const db = require('../config/db');
 class Pago {
     // Crear un pago
     static async crear(pago) {
-        const { contrato_id, monto, metodo_pago, tipo_pago, estado } = pago;
+        const { contrato_id, monto, metodo_pago, tipo_pago, estado, fecha_pago, observacion } = pago;
         const [result] = await db.query(
             'INSERT INTO pagos (contrato_id, monto, metodo_pago, tipo_pago, estado, fecha_pago, observacion) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [contrato_id, monto, metodo_pago, tipo_pago, estado]
+            [contrato_id, monto, metodo_pago, tipo_pago, estado, fecha_pago, observacion]
         );
         return result.insertId;
     }
