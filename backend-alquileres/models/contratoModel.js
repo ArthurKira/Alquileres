@@ -11,6 +11,95 @@ class Contrato {
         return result.insertId;
     }
 
+    // Obtener todos los contratos
+    static async obtenerTodos() {
+        const [contratos] = await db.query('SELECT * FROM contratos');
+        return contratos;
+    }
+
+    // Obtener contratos con información detallada
+    static async obtenerConInformacion() {
+        const [contratos] = await db.query(`
+            SELECT
+                c.id,
+                c.fecha_inicio,
+                c.fecha_fin,
+                c.monto_alquiler,
+                c.monto_garantia,
+                c.descripcion,
+                c.documento,
+                c.estado,
+                c.fecha_pago,
+                p.dni AS inquilino_dni,
+                p.nombre AS inquilino_nombre,
+                p.apellido AS inquilino_apellido,
+                p.email AS inquilino_email,
+                p.telefono AS inquilino_telefono,
+                i.nombre AS inmueble_nombre,
+                e.nombre AS espacio_nombre,
+                e.descripcion AS espacio_descripcion,
+                e.precio AS espacio_precio
+            FROM contratos c
+            LEFT JOIN personas p ON c.inquilino_id = p.id
+            LEFT JOIN inmuebles i ON c.inmueble_id = i.id
+            LEFT JOIN espacios e ON c.espacio_id = e.id
+            ORDER BY c.id DESC
+        `);
+        return contratos;
+    }
+
+    // Obtener contratos con información detallada por inquilino(dni o nombre)
+    static async obtenerPorInquilinoConInformacion(dni = null, nombre = null) {
+        let sql = `
+            SELECT
+                c.id,
+                c.fecha_inicio,
+                c.fecha_fin,
+                c.monto_alquiler,
+                c.monto_garantia,
+                c.descripcion,
+                c.documento,
+                c.estado,
+                c.fecha_pago,
+                p.dni AS inquilino_dni,
+                p.nombre AS inquilino_nombre,
+                p.apellido AS inquilino_apellido,
+                p.email AS inquilino_email,
+                p.telefono AS inquilino_telefono,
+                i.nombre AS inmueble_nombre,
+                e.nombre AS espacio_nombre,
+                e.descripcion AS espacio_descripcion,
+                e.precio AS espacio_precio
+            FROM contratos c
+            LEFT JOIN personas p ON c.inquilino_id = p.id
+            LEFT JOIN inmuebles i ON c.inmueble_id = i.id
+            LEFT JOIN espacios e ON c.espacio_id = e.id
+        `;
+
+        const params = [];
+        const conditions = [];
+
+        if (dni) {
+            conditions.push('p.dni = ?');
+            params.push(dni);
+        }
+
+        if (nombre) {
+            conditions.push('(p.nombre LIKE ? OR p.apellido LIKE ?)');
+            params.push(`%${nombre}%`);
+            params.push(`%${nombre}%`);
+        }
+
+        if (conditions.length > 0) {
+            sql += ' WHERE ' + conditions.join(' OR ');
+        }
+
+        sql += ' ORDER BY c.id DESC';
+
+        const [contratos] = await db.query(sql, params);
+        return contratos;
+    }
+
     // Obtener todos los contratos de un inquilino
     static async obtenerPorInquilino(inquilinoId) {
         const [contratos] = await db.query('SELECT * FROM contratos WHERE inquilino_id = ?', [inquilinoId]);

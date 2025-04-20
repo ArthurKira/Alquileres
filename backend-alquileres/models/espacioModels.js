@@ -11,6 +11,13 @@ class Espacio {
         return result.insertId;
     }
 
+    // Obtener todos los espacios
+    static async obtenerTodos() {
+        const [espacios] = await db.query('SELECT * FROM espacios');
+        return espacios;
+    }
+
+
     // Obtener todos los espacios de un piso
     static async obtenerPorPiso(pisoId) {
         const [espacios] = await db.query(`
@@ -21,6 +28,8 @@ class Espacio {
         `, [pisoId]);
         return espacios;
     }
+
+
 
     // Obtener un espacio por ID
     static async obtenerPorId(id) {

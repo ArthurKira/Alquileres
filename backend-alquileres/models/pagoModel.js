@@ -5,7 +5,7 @@ class Pago {
     static async crear(pago) {
         const { contrato_id, monto, metodo_pago, tipo_pago, estado } = pago;
         const [result] = await db.query(
-            'INSERT INTO pagos (contrato_id, monto, metodo_pago, tipo_pago, estado) VALUES (?, ?, ?, ?, ?)',
+            'INSERT INTO pagos (contrato_id, monto, metodo_pago, tipo_pago, estado, fecha_pago, observacion) VALUES (?, ?, ?, ?, ?, ?, ?)',
             [contrato_id, monto, metodo_pago, tipo_pago, estado]
         );
         return result.insertId;

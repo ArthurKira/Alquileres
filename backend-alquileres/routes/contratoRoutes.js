@@ -7,6 +7,15 @@ const verificarRol = require('../middlewares/rolMiddleware');
 // Crear un contrato
 router.post('/', verificarToken, verificarRol(['administrador', 'propietario']), contratoController.crearContrato);
 
+// Obtener todos los contratos
+router.get('/', verificarToken, contratoController.obtenerTodosLosContratos);
+
+// Obtener contratos con información detallada
+router.get('/detalles', verificarToken, contratoController.obtenerContratosConInformacion);
+
+// Obtener contratos con información detallada por inquilino (dni o nombre)
+router.get('/inquilinos/detalles', verificarToken, contratoController.obtenerContratosPorInquilinoConInformacion);
+
 // Obtener todos los contratos de un inquilino
 router.get('/inquilinos/:inquilinoId', verificarToken, contratoController.obtenerContratosPorInquilino);
 

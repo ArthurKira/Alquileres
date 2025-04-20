@@ -11,6 +11,12 @@ class Inmueble {
         return result.insertId;
     }
 
+    //Obtener inmuebles por propietario
+    static async obtenerPorPropietario(propietarioId) {
+        const [inmuebles] = await db.query('SELECT * FROM inmuebles WHERE propietario_id = ?', [propietarioId]);
+        return inmuebles;
+    }
+
     // Obtener todos los inmuebles
     static async obtenerTodos() {
         const [inmuebles] = await db.query(`

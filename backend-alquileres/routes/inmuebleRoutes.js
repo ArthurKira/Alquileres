@@ -7,6 +7,9 @@ const verificarToken = require('../middlewares/authMiddleware');
 // Obtener todos los inmuebles (público)
 router.get('/', inmuebleController.obtenerInmuebles);
 
+// Obtener inmuebles por propietario (público)
+router.get('/propietario/:propietarioId', inmuebleController.obtenerInmueblesPorPropietario);
+
 // Obtener un inmueble por ID (público)
 router.get('/:id', inmuebleController.obtenerInmueblePorId);
 

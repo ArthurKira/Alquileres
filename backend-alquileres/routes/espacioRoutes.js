@@ -10,6 +10,9 @@ router.get('/inmuebles/:inmuebleId/pisos/:pisoId/espacios', espacioController.ob
 // Obtener un espacio específico
 router.get('/inmuebles/:inmuebleId/pisos/:pisoId/espacios/:espacioId', espacioController.obtenerEspacioPorId);
 
+// Obtener todos los espacios
+router.get('/espacios', espacioController.obtenerEspacios);
+
 // Crear un nuevo espacio en un piso
 router.post(
     '/inmuebles/:inmuebleId/pisos/:pisoId/espacios',

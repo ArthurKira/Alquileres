@@ -11,6 +11,17 @@ const crearContrato = async (req, res) => {
     }
 };
 
+// Obtener todos los contratos
+const obtenerTodosLosContratos = async (req, res) => {
+    try {
+        const contratos = await Contrato.obtenerTodos();
+        res.json(contratos);
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al obtener los contratos', error: error.message });
+    }
+};
+
+
 // Obtener todos los contratos de un inquilino
 const obtenerContratosPorInquilino = async (req, res) => {
     try {
@@ -21,6 +32,28 @@ const obtenerContratosPorInquilino = async (req, res) => {
         res.status(500).json({ mensaje: 'Error al obtener los contratos', error: error.message });
     }
 };
+
+// Obtener contratos con información detallada
+const obtenerContratosConInformacion = async (req, res) => {
+    try {
+        const contratos = await Contrato.obtenerConInformacion();
+        res.json(contratos);
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al obtener los contratos con información', error: error.message });
+    }
+};
+
+// Obtener contratos con información detallada por inquilino(dni o nombre)
+const obtenerContratosPorInquilinoConInformacion = async (req, res) => {
+    try {
+        const { dni, nombre } = req.query;
+        const contratos = await Contrato.obtenerPorInquilinoConInformacion(dni, nombre);
+        res.json(contratos);
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al obtener los contratos con información', error: error.message });
+    }
+};
+
 
 // Obtener todos los contratos de un propietario
 const obtenerContratosPorPropietario = async (req, res) => {
@@ -76,7 +109,10 @@ const eliminarContrato = async (req, res) => {
 
 module.exports = {
     crearContrato,
+    obtenerTodosLosContratos,
     obtenerContratosPorInquilino,
+    obtenerContratosConInformacion,
+    obtenerContratosPorInquilinoConInformacion,
     obtenerContratosPorPropietario,
     obtenerContratoPorId,
     actualizarContrato,
