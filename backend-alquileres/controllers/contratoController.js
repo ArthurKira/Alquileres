@@ -63,16 +63,6 @@ const obtenerContratosPorInquilinoConInformacion = async (req, res) => {
         res.status(500).json({ mensaje: 'Error al obtener los contratos con información', error: error.message });
     }
 };
-// Obtener todos los contratos de un inmueble
-const obtenerContratosPorInmueble = async (req, res) => {
-    try {
-        const { inmuebleId } = req.params;
-        const contratos = await Contrato.obtenerPorInmueble(inmuebleId);
-        res.json(contratos);
-    } catch (error) {
-        res.status(500).json({ mensaje: 'Error al obtener los contratos del inmueble', error: error.message });
-    }
-};
 
 // Obtener todos los contratos de un propietario
 const obtenerContratosPorPropietario = async (req, res) => {
