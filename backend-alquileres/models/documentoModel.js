@@ -1,4 +1,4 @@
-const db = requiere('../config/db');
+const db = require('../config/db');
 
 class Documento {
 
