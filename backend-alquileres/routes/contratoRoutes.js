@@ -23,6 +23,5 @@ router.put('/:id', verificarToken, verificarRol(['administrador', 'propietario']
 router.delete('/:id', verificarToken, verificarRol(['administrador', 'propietario']), contratoController.eliminarContrato);
 
 // Obtener todos los contratos con información completa
-router.get('/info', verificarToken, verificarRol(['administrador', 'propietario']), contratoController.obtenerContratosConInfo);
-
+router.get('/detalles/informacion', verificarToken, contratoController.obtenerContratosConInformacion);
 module.exports = router;

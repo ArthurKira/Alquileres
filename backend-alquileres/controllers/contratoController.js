@@ -82,24 +82,14 @@ const obtenerContratosConInfo = async (req, res) => {
         const contratos = await Contrato.obtenerContratosConInfo();
         console.log('Contratos obtenidos del modelo:', contratos);
         
-        // Si no hay contratos, devolvemos un array vacío con un mensaje informativo
-        if (!contratos || contratos.length === 0) {
-            console.log('No hay contratos para devolver');
-            return res.status(200).json({
-                mensaje: 'No hay contratos registrados en el sistema',
-                contratos: []
-            });
-        }
-
-        // Si hay contratos, los devolvemos directamente
-        console.log(`Devolviendo ${contratos.length} contratos`);
-        res.status(200).json(contratos);
+        // Aseguramos que siempre devolvamos un array, incluso si está vacío
+        const respuesta = Array.isArray(contratos) ? contratos : [];
+        
+        // Devolvemos la respuesta en el formato que espera el frontend
+        res.status(200).json(respuesta);
     } catch (error) {
         console.error('Error en el controlador obtenerContratosConInfo:', error);
-        res.status(500).json({ 
-            mensaje: 'Error al obtener los contratos con información', 
-            error: error.message 
-        });
+        res.status(500).json([]);
     }
 };
 

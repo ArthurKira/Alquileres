@@ -105,62 +105,35 @@ class Contrato {
         }
     }
 
-    // Obtener todos los contratos con información relacionada
-    static async obtenerContratosConInfo() {
-        try {
-            console.log('Iniciando consulta de contratos con información...');
-            
-            // Primero, verifiquemos si hay contratos en la tabla
-            const [contratosBase] = await db.query('SELECT * FROM contratos');
-            console.log('Contratos base encontrados:', contratosBase);
-            
-            if (!contratosBase || contratosBase.length === 0) {
-                console.log('No hay contratos en la tabla base');
-                return [];
-            }
-            
-            // Si hay contratos, hacemos la consulta completa
-            const [contratos] = await db.query(`
-                SELECT 
-                    c.id,
-                    c.fecha_inicio,
-                    c.fecha_fin,
-                    c.monto_alquiler,
-                    c.monto_garantia,
-                    c.descripcion,
-                    c.documento,
-                    c.estado,
-                    c.fecha_pago,
-                    p.dni AS inquilino_dni,
-                    p.nombre AS inquilino_nombre,
-                    p.apellido AS inquilino_apellido,
-                    p.email AS inquilino_email,
-                    p.telefono AS inquilino_telefono,
-                    i.nombre AS inmueble_nombre,
-                    e.nombre AS espacio_nombre,
-                    e.descripcion AS espacio_descripcion,
-                    e.precio AS espacio_precio
-                FROM contratos c
-                LEFT JOIN personas p ON c.inquilino_id = p.id
-                LEFT JOIN inmuebles i ON c.inmueble_id = i.id
-                LEFT JOIN espacios e ON c.espacio_id = e.id
-                ORDER BY c.id DESC
-            `);
-            
-            console.log('Resultado de la consulta completa:', contratos);
-            
-            if (!contratos || contratos.length === 0) {
-                console.log('No se encontraron contratos en la consulta completa');
-                return [];
-            }
-            
-            console.log(`Se encontraron ${contratos.length} contratos con información completa`);
-            return contratos;
-        } catch (error) {
-            console.error('Error detallado en obtenerContratosConInfo:', error);
-            console.error('Stack trace:', error.stack);
-            throw new Error(`Error al obtener los contratos con información: ${error.message}`);
-        }
+    // Obtener contratos con información detallada
+    static async obtenerConInformacion() {
+        const [contratos] = await db.query(`
+            SELECT
+                c.id,
+                c.fecha_inicio,
+                c.fecha_fin,
+                c.monto_alquiler,
+                c.monto_garantia,
+                c.descripcion,
+                c.documento,
+                c.estado,
+                c.fecha_pago,
+                p.dni AS inquilino_dni,
+                p.nombre AS inquilino_nombre,
+                p.apellido AS inquilino_apellido,
+                p.email AS inquilino_email,
+                p.telefono AS inquilino_telefono,
+                i.nombre AS inmueble_nombre,
+                e.nombre AS espacio_nombre,
+                e.descripcion AS espacio_descripcion,
+                e.precio AS espacio_precio
+            FROM contratos c
+            LEFT JOIN personas p ON c.inquilino_id = p.id
+            LEFT JOIN inmuebles i ON c.inmueble_id = i.id
+            LEFT JOIN espacios e ON c.espacio_id = e.id
+            ORDER BY c.id DESC
+        `);
+        return contratos;
     }
 }
 
