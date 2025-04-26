@@ -11,6 +11,26 @@ const obtenerEspaciosPorPiso = async (req, res) => {
     }
 };
 
+// Obtener todos los espacios
+const obtenerEspacios = async (req, res) => {
+    try {
+        const espacios = await Espacio.obtenerTodos(); // Asegúrate de que el modelo Espacio tenga este método
+        res.json(espacios);
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al obtener los espacios', error: error.message });
+    }
+};
+
+// Obetener todos los espacios ocupados
+//const obtenerEspaciosOcupados = async (req, res) => {
+//    try {
+//        const espacios = await Espacio.obtenerOcupados(); // Asegúrate de que el modelo Espacio tenga este método
+//        res.json(espacios);
+//    } catch (error) {
+//        res.status(500).json({ mensaje: 'Error al obtener los espacios ocupados', error: error.message });
+//    }
+//};
+
 // Obtener un espacio por ID
 const obtenerEspacioPorId = async (req, res) => {
     try {
@@ -78,6 +98,7 @@ const eliminarEspacio = async (req, res) => {
 module.exports = {
     obtenerEspaciosPorPiso,
     obtenerEspacioPorId,
+    obtenerEspacios,
     crearEspacio,
     actualizarEspacio,
     eliminarEspacio,

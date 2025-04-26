@@ -11,6 +11,17 @@ const crearContrato = async (req, res) => {
     }
 };
 
+// Obtener todos los contratos
+const obtenerTodosLosContratos = async (req, res) => {
+    try {
+        const contratos = await Contrato.obtenerTodos();
+        res.json(contratos);
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al obtener los contratos', error: error.message });
+    }
+};
+
+
 // Obtener todos los contratos de un inquilino
 const obtenerContratosPorInquilino = async (req, res) => {
     try {
@@ -21,7 +32,6 @@ const obtenerContratosPorInquilino = async (req, res) => {
         res.status(500).json({ mensaje: 'Error al obtener los contratos del inquilino', error: error.message });
     }
 };
-
 // Obtener todos los contratos de un inmueble
 const obtenerContratosPorInmueble = async (req, res) => {
     try {
@@ -30,6 +40,38 @@ const obtenerContratosPorInmueble = async (req, res) => {
         res.json(contratos);
     } catch (error) {
         res.status(500).json({ mensaje: 'Error al obtener los contratos del inmueble', error: error.message });
+    }
+};
+
+// Obtener contratos con información detallada
+const obtenerContratosConInformacion = async (req, res) => {
+    try {
+        const contratos = await Contrato.obtenerConInformacion();
+        res.json(contratos);
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al obtener los contratos con información', error: error.message });
+    }
+};
+
+// Obtener contratos con información detallada por inquilino(dni o nombre)
+const obtenerContratosPorInquilinoConInformacion = async (req, res) => {
+    try {
+        const { dni, nombre } = req.query;
+        const contratos = await Contrato.obtenerPorInquilinoConInformacion(dni, nombre);
+        res.json(contratos);
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al obtener los contratos con información', error: error.message });
+    }
+};
+
+// Obtener todos los contratos de un propietario
+const obtenerContratosPorPropietario = async (req, res) => {
+    try {
+        const { propietarioId } = req.params;
+        const contratos = await Contrato.obtenerPorPropietario(propietarioId);
+        res.json(contratos);
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al obtener los contratos', error: error.message });
     }
 };
 
@@ -78,24 +120,38 @@ const eliminarContrato = async (req, res) => {
 const obtenerContratosConInfo = async (req, res) => {
     try {
         console.log('Solicitud recibida para obtener contratos con información');
-        
+
         const contratos = await Contrato.obtenerContratosConInfo();
         console.log('Contratos obtenidos del modelo:', contratos);
-        
-        // Aseguramos que siempre devolvamos un array, incluso si está vacío
-        const respuesta = Array.isArray(contratos) ? contratos : [];
-        
-        // Devolvemos la respuesta en el formato que espera el frontend
-        res.status(200).json(respuesta);
+
+        // Si no hay contratos, devolvemos un array vacío con un mensaje informativo
+        if (!contratos || contratos.length === 0) {
+            console.log('No hay contratos para devolver');
+            return res.status(200).json({
+                mensaje: 'No hay contratos registrados en el sistema',
+                contratos: []
+            });
+        }
+
+        // Si hay contratos, los devolvemos directamente
+        console.log(`Devolviendo ${contratos.length} contratos`);
+        res.status(200).json(contratos);
     } catch (error) {
         console.error('Error en el controlador obtenerContratosConInfo:', error);
-        res.status(500).json([]);
+        res.status(500).json({
+            mensaje: 'Error al obtener los contratos con información',
+            error: error.message
+        });
     }
 };
 
 module.exports = {
     crearContrato,
+    obtenerTodosLosContratos,
     obtenerContratosPorInquilino,
+    obtenerContratosConInformacion,
+    obtenerContratosPorInquilinoConInformacion,
+    obtenerContratosPorPropietario,
     obtenerContratosPorInmueble,
     obtenerContratoPorId,
     actualizarContrato,

@@ -11,6 +11,17 @@ const crearInmueble = async (req, res) => {
     }
 };
 
+// Obtener inmuebles por propietario
+const obtenerInmueblesPorPropietario = async (req, res) => {
+    try {
+        const { propietarioId } = req.params;
+        const inmuebles = await Inmueble.obtenerPorPropietario(propietarioId);
+        res.json(inmuebles);
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al obtener los inmuebles', error: error.message });
+    }
+};
+
 // Obtener todos los inmuebles
 const obtenerInmuebles = async (req, res) => {
     try {
@@ -62,6 +73,7 @@ const eliminarInmueble = async (req, res) => {
 
 module.exports = {
     crearInmueble,
+    obtenerInmueblesPorPropietario,
     obtenerInmuebles,
     obtenerInmueblePorId,
     actualizarInmueble,

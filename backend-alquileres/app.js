@@ -15,6 +15,7 @@ const pagoAdicionalRoutes = require('./routes/pagoAdicionalRoutes');
 const reporteRoutes = require('./routes/reporteRoutes');
 const detalleReporteRoutes = require('./routes/detalleReporteRoutes');
 const gastoRoutes = require('./routes/gastoRoutes');
+const documentoRoutes = require('./routes/documentoRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 
 require('dotenv').config();
@@ -40,6 +41,7 @@ app.use('/api/pagos-adicionales', pagoAdicionalRoutes); // Nueva línea
 app.use('/api/reportes', reporteRoutes); // Nueva línea
 app.use('/api/detalles-reportes', detalleReporteRoutes); // Nueva línea
 app.use('/api/gastos', gastoRoutes); // Nueva línea
+app.use('/api/documentos', documentoRoutes); // Nueva línea
 app.use('/api/dashboard', dashboardRoutes);
 
 // Ruta de prueba
