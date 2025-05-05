@@ -11,6 +11,16 @@ const crearGasto = async (req, res) => {
     }
 };
 
+// Obtener todos los gastos
+const obtenerGastos = async (req, res) => {
+    try {
+        const gastos = await Gasto.obtenerTodos();
+        res.json(gastos);
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al obtener los gastos', error: error.message });
+    }
+};
+
 // Obtener todos los gastos de un inmueble
 const obtenerGastosPorInmueble = async (req, res) => {
     try {
@@ -19,6 +29,20 @@ const obtenerGastosPorInmueble = async (req, res) => {
         res.json(gastos);
     } catch (error) {
         res.status(500).json({ mensaje: 'Error al obtener los gastos', error: error.message });
+    }
+};
+
+// Buscar gastos por término
+const buscarGastos = async (req, res) => {
+    try {
+        const { termino } = req.query;
+        if (!termino) {
+            return res.status(400).json({ mensaje: 'Se requiere un término de búsqueda' });
+        }
+        const gastos = await Gasto.buscar(termino);
+        res.json(gastos);
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al buscar gastos', error: error.message });
     }
 };
 
@@ -65,7 +89,9 @@ const eliminarGasto = async (req, res) => {
 
 module.exports = {
     crearGasto,
+    obtenerGastos,
     obtenerGastosPorInmueble,
+    buscarGastos,
     obtenerGastoPorId,
     actualizarGasto,
     eliminarGasto,

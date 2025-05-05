@@ -3,10 +3,12 @@ const Documento = require('../models/documentoModel');
 // crear un documento
 const crearDocumento = async (req, res) => {
     try {
+        console.log('📥 Datos recibidos en req.body:', req.body);
         const nuevoDocumento = req.body;
         const idDocumento = await Documento.crear(nuevoDocumento);
         res.status(201).json({ mensaje: 'Documento creado exitosamente', id: idDocumento });
     } catch (error) {
+        console.error('❌ Error al crear el documento:', error);
         res.status(500).json({ mensaje: 'Error al crear el documento', error: error.message });
     }
 };

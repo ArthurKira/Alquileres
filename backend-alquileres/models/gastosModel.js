@@ -3,12 +3,23 @@ const db = require('../config/db');
 class Gasto {
     // Crear un gasto
     static async crear(gasto) {
-        const { inmueble_id, tipo_gasto, descripcion, monto, fecha } = gasto;
+        const { inmueble_id, tipo_gasto, descripcion, monto, fecha, estado, observaciones } = gasto;
         const [result] = await db.query(
-            'INSERT INTO gastos (inmueble_id, tipo_gasto, descripcion, monto, fecha) VALUES (?, ?, ?, ?, ?)',
-            [inmueble_id, tipo_gasto, descripcion, monto, fecha]
+            'INSERT INTO gastos (inmueble_id, tipo_gasto, descripcion, monto, fecha, estado, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [inmueble_id, tipo_gasto, descripcion, monto, fecha, estado, observaciones]
         );
         return result.insertId;
+    }
+
+    // Obtener todos los gastos
+    static async obtenerTodos() {
+        const [gastos] = await db.query(`
+            SELECT g.*, i.nombre AS inmueble_nombre
+            FROM gastos g
+            LEFT JOIN inmuebles i ON g.inmueble_id = i.id
+            ORDER BY g.fecha DESC
+        `);
+        return gastos;
     }
 
     // Obtener todos los gastos de un inmueble
@@ -17,9 +28,29 @@ class Gasto {
         return gastos;
     }
 
+    // Buscar gastos por término (concepto, inmueble, etc.)
+    static async buscar(termino) {
+        const terminoBusqueda = `%${termino}%`;
+        const [gastos] = await db.query(`
+            SELECT g.*, i.nombre AS inmueble_nombre
+            FROM gastos g
+            LEFT JOIN inmuebles i ON g.inmueble_id = i.id
+            WHERE g.descripcion LIKE ? 
+               OR i.nombre LIKE ?
+               OR g.tipo_gasto LIKE ?
+            ORDER BY g.fecha DESC
+        `, [terminoBusqueda, terminoBusqueda, terminoBusqueda]);
+        return gastos;
+    }
+
     // Obtener un gasto por ID
     static async obtenerPorId(id) {
-        const [gastos] = await db.query('SELECT * FROM gastos WHERE id = ?', [id]);
+        const [gastos] = await db.query(`
+            SELECT g.*, i.nombre AS inmueble_nombre
+            FROM gastos g
+            LEFT JOIN inmuebles i ON g.inmueble_id = i.id
+            WHERE g.id = ?
+        `, [id]);
         return gastos[0];
     }
 

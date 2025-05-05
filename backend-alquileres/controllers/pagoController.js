@@ -11,6 +11,16 @@ const crearPago = async (req, res) => {
     }
 };
 
+// Obtener todos los pagos (sin filtro)
+const obtenerTodosPagos = async (req, res) => {
+    try {
+        const pagos = await Pago.obtenerTodos();
+        res.json(pagos);
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al obtener todos los pagos', error: error.message });
+    }
+};
+
 // Obtener todos los pagos de un contrato
 const obtenerPagosPorContrato = async (req, res) => {
     try {
@@ -76,6 +86,7 @@ const eliminarPago = async (req, res) => {
 
 module.exports = {
     crearPago,
+    obtenerTodosPagos,
     obtenerPagosPorContrato,
     obtenerPagosPorInquilino,
     obtenerPagoPorId,
