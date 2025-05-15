@@ -17,13 +17,28 @@ const detalleReporteRoutes = require('./routes/detalleReporteRoutes');
 const gastoRoutes = require('./routes/gastoRoutes');
 const documentoRoutes = require('./routes/documentoRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+// const uploadRoutes = require('./routes/uploadRoutes');
 
 require('dotenv').config();
 
 const app = express();
 
 // Middlewares
-app.use(cors());
+const corsOptions = {
+    origin: 'http://localhost:3001', // Cambia al puerto real de tu frontend
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: [
+        'Content-Type', 
+        'Authorization', 
+        'X-Documentable-ID', 
+        'X-Documentable-Type'
+    ],
+    credentials: true,
+    exposedHeaders: ['Content-Disposition'],
+    maxAge: 86400 // 24 horas en segundos
+};
+  
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Rutas

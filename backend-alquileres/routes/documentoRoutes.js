@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const documentoController = require('../controllers/documentoController');
+const uploadController = require('../controllers/uploadController');  // Importamos el controlador de subida de archivos
 const verificarToken = require('../middlewares/authMiddleware');
 const verificarRol = require('../middlewares/rolMiddleware');
 
@@ -22,5 +23,8 @@ router.get('/documentable/:documentable_id/:documentable_type', verificarToken, 
 
 // Eliminar un documento
 router.delete('/:id', verificarToken, verificarRol(['administrador']), documentoController.eliminarDocumento);
+
+// Ruta para subir un archivo (nuevo endpoint)
+router.post('/upload', verificarToken, uploadController.upload.single('archivo'), uploadController.subirArchivo);
 
 module.exports = router;

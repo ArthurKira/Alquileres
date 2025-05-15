@@ -3,12 +3,37 @@ const db = require('../config/db');
 class Pago {
     // Crear un pago
     static async crear(pago) {
-        const { contrato_id, monto, metodo_pago, tipo_pago, estado, fecha_pago, observacion } = pago;
+        const { contrato_id, monto, metodo_pago, tipo_pago, estado, fecha_pago, fecha_real_pago, observacion } = pago;
         const [result] = await db.query(
-            'INSERT INTO pagos (contrato_id, monto, metodo_pago, tipo_pago, estado, fecha_pago, observacion) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [contrato_id, monto, metodo_pago, tipo_pago, estado, fecha_pago, observacion]
+            'INSERT INTO pagos (contrato_id, monto, metodo_pago, tipo_pago, estado, fecha_pago, fecha_real_pago, observacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [contrato_id, monto, metodo_pago, tipo_pago, estado, fecha_pago, fecha_real_pago, observacion]
         );
         return result.insertId;
+    }
+
+    // Obtener todos los pagos
+    static async obtenerTodos() {
+        const [pagos] = await db.query(`
+            SELECT
+                pagos.id,
+                pagos.contrato_id,
+                pagos.monto,
+                pagos.metodo_pago,
+                pagos.tipo_pago,
+                pagos.estado,
+                pagos.fecha_pago,
+                pagos.fecha_real_pago,
+                pagos.observacion,
+                contratos.inquilino_id,
+                personas.nombre AS inquilino_nombre,
+                personas.apellido AS inquilino_apellido,
+                personas.dni AS inquilino_dni
+            FROM pagos
+            LEFT JOIN contratos ON pagos.contrato_id = contratos.id
+            LEFT JOIN personas ON contratos.inquilino_id = personas.id
+            ORDER BY pagos.id DESC
+        `);
+        return pagos;
     }
 
     // Obtener todos los pagos de un contrato
@@ -34,6 +59,7 @@ class Pago {
                 pagos.tipo_pago,
                 pagos.estado,
                 pagos.fecha_pago,
+                pagos.fecha_real_pago,
                 contratos.inquilino_id,
                 personas.nombre AS inquilino_nombre,
                 personas.apellido AS inquilino_apellido,

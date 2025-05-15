@@ -51,3 +51,5 @@ class Documento {
 
 
 }
+
+module.exports = Documento;
