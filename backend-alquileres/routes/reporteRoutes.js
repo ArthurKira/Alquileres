@@ -10,6 +10,12 @@ router.post('/', verificarToken, verificarRol(['administrador']), reporteControl
 // Obtener todos los reportes
 router.get('/', verificarToken, reporteController.obtenerReportes);
 
+// Generar reporte de pagos
+router.get('/generar/pagos', verificarToken, reporteController.generarReportePagos);
+
+// Generar reporte de gastos
+router.get('/generar/gastos', verificarToken, reporteController.generarReporteGastos);
+
 // Obtener un reporte por ID
 router.get('/:id', verificarToken, reporteController.obtenerReportePorId);
 
