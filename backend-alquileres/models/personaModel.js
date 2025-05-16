@@ -17,6 +17,12 @@ class Persona {
         return personas;
     }
 
+    // Obtener todas las personas que son inquilinos
+    static async obtenerInquilinos() {
+        const [personas] = await db.query('SELECT * FROM personas WHERE rol = "inquilino"');
+        return personas;
+    }
+
     // Obtener una persona por ID
     static async obtenerPorId(id) {
         const [personas] = await db.query('SELECT * FROM personas WHERE id = ?', [id]);

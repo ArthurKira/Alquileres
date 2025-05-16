@@ -21,6 +21,15 @@ const obtenerPersonas = async (req, res) => {
     }
 };
 
+// Obtener todas las personas
+const obtenerInquilinos = async (req, res) => {
+    try {
+        const personas = await Persona.obtenerInquilinos();
+        res.json(personas);
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al obtener los inquilinos', error: error.message });
+    }
+};
 // Obtener una persona por ID
 const obtenerPersonaPorId = async (req, res) => {
     try {
@@ -76,6 +85,7 @@ const eliminarPersona = async (req, res) => {
 module.exports = {
     crearPersona,
     obtenerPersonas,
+    obtenerInquilinos,
     obtenerPersonaPorId,
     obtenerPersonaPorEmail,
     actualizarPersona,

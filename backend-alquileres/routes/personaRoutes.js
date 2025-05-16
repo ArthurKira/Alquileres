@@ -7,6 +7,8 @@ const verificarRol = require('../middlewares/rolMiddleware'); // Crear este midd
 // Obtener todas las personas (público)
 router.get('/', personaController.obtenerPersonas);
 
+// Obtener todas las personas (público)
+router.get('/inquilinosObtener', personaController.obtenerInquilinos);
 // Obtener una persona por ID (público)
 router.get('/:id', personaController.obtenerPersonaPorId);
 

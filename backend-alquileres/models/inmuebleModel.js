@@ -4,12 +4,26 @@ class Inmueble {
     // Crear un inmueble
     static async crear(inmueble) {
         const { propietario_id, tipoInmueble_id, nombre, descripcion, direccion, ubigeo, cantidad_pisos, estado } = inmueble;
+        
         const [result] = await db.query(
             'INSERT INTO inmuebles (propietario_id, tipoInmueble_id, nombre, descripcion, direccion, ubigeo, cantidad_pisos, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
             [propietario_id, tipoInmueble_id, nombre, descripcion, direccion, ubigeo, cantidad_pisos, estado]
+            
         );
-        return result.insertId;
+    
+        const idinmueble = result.insertId;
+        console.log('ID del inmueble creado:', idinmueble);
+        for (let i = 1; i <= cantidad_pisos; i++) {
+            const nombrePiso = `Piso ${i}`;
+            await db.query(
+                'INSERT INTO pisos (inmueble_id, nombre) VALUES (?, ?)',
+                [idinmueble, nombrePiso]
+            );
+        }
+        console.log('Pisos creados para el inmueble:', idinmueble);
+        return idinmueble;
     }
+    
 
     //Obtener inmuebles por propietario
     static async obtenerPorPropietario(propietarioId) {
