@@ -3,10 +3,10 @@ const db = require('../config/db');
 class Espacio {
     // Crear un espacio
     static async crear(espacio) {
-        const { piso_id, tipoEspacio_id, nombre, descripcion, precio, capacidad, baño } = espacio;
+        const { piso_id, tipoEspacio_id, nombre, descripcion, precio, capacidad, baño, estado } = espacio;
         const [result] = await db.query(
-            'INSERT INTO espacios (piso_id, tipoEspacio_id, nombre, descripcion, precio, capacidad, baño) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [piso_id, tipoEspacio_id, nombre, descripcion, precio, capacidad, baño]
+            'INSERT INTO espacios (piso_id, tipoEspacio_id, nombre, descripcion, precio, capacidad, baño, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [piso_id, tipoEspacio_id, nombre, descripcion, precio, capacidad, baño, estado]
         );
         return result.insertId;
     }
