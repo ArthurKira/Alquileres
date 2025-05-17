@@ -5,16 +5,13 @@ const verificarToken = require('../middlewares/authMiddleware');
 const verificarRol = require('../middlewares/rolMiddleware');
 
 // Obtener todos los espacios
-router.get('/obtenerespacios', espacioController.obtenerEspacio);
+router.get('/', espacioController.obtenerEspacio);
 
 // Obtener todos los espacios de un piso
 router.get('/inmuebles/:inmuebleId/pisos/:pisoId/espacios', espacioController.obtenerEspaciosPorPiso);
 
 // Obtener un espacio específico
 router.get('/inmuebles/:inmuebleId/pisos/:pisoId/espacios/:espacioId', espacioController.obtenerEspacioPorId);
-
-// Obtener todos los espacios
-router.get('/espacios', espacioController.obtenerEspacios);
 
 // Crear un nuevo espacio en un piso
 router.post(
