@@ -97,37 +97,40 @@ class Reporte {
     // Generar reporte de gastos con filtros
     static async reporteGastos(filtros = {}) {
         let query = `
-            SELECT g.id, g.monto, g.metodo_pago, g.tipo_gasto, g.descripcion, g.creado_en,
+            SELECT g.id, g.monto, g.tipo_gasto, g.descripcion, g.creado_en,
                    i.nombre
             FROM gastos g
-            LEFT JOIN inmuebles i ON g.inmueble_id = i.id
+                     LEFT JOIN inmuebles i ON g.inmueble_id = i.id
             WHERE 1=1
         `;
-        
+
         const params = [];
-        
+
+        // Filtros opcionales
         if (filtros.fecha_inicio) {
             query += ' AND g.creado_en >= ?';
             params.push(filtros.fecha_inicio);
         }
-        
+
         if (filtros.fecha_fin) {
             query += ' AND g.creado_en <= ?';
             params.push(filtros.fecha_fin);
         }
-        
+
         if (filtros.inmueble_id) {
-            query += ' AND i.id = ?';
+            query += ' AND g.inmueble_id = ?';
             params.push(filtros.inmueble_id);
         }
-        
+
         if (filtros.tipo_gasto) {
             query += ' AND g.tipo_gasto = ?';
             params.push(filtros.tipo_gasto);
         }
-        
+
+        // Orden final
         query += ' ORDER BY g.creado_en DESC';
-        
+
+        // Ejecutar la consulta
         const [gastos] = await db.query(query, params);
         return gastos;
     }
