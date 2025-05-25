@@ -30,6 +30,20 @@ const obtenerInquilinos = async (req, res) => {
         res.status(500).json({ mensaje: 'Error al obtener los inquilinos', error: error.message });
     }
 };
+
+//obtener persona por documento
+const obtenerPersonaPorDocumento = async (req, res) => {
+    try {
+        const persona = await Persona.obtenerPorDocumento(req.params.dni);
+        if (!persona) {
+            return res.status(404).json({ mensaje: 'Persona no encontrada' });
+        }
+        res.json(persona);
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al obtener la persona', error: error.message });
+    }
+};
+
 // Obtener una persona por ID
 const obtenerPersonaPorId = async (req, res) => {
     try {
@@ -89,5 +103,6 @@ module.exports = {
     obtenerPersonaPorId,
     obtenerPersonaPorEmail,
     actualizarPersona,
+    obtenerPersonaPorDocumento,
     eliminarPersona,
 };

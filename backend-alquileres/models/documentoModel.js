@@ -24,6 +24,7 @@ class Documento {
         return documentos;
     }
 
+
     // Obtener un documento por ID
     static async obtenerPorId(id) {
         const [documentos] = await db.query('SELECT * FROM documentos WHERE id = ?', [id]);

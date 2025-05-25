@@ -18,13 +18,20 @@ router.get('/', verificarToken, documentoController.obtenerDocumentos);
 // Obtener un documento por ID
 router.get('/:id', verificarToken, documentoController.obtenerDocumentoPorId);
 
+
 // Obtener documentos por documentable_id y documentable_type (contrato, pago, gasto)
 router.get('/documentable/:documentable_id/:documentable_type', verificarToken, documentoController.obtenerDocumentosPorDocumentable);
+
+// Ver documento - No usar verificarToken aquí ya que manejamos la autenticación en el controlador
+router.get('/ver/*', documentoController.verDocumento);
+
+// Descargar documento - No usar verificarToken aquí ya que manejamos la autenticación en el controlador
+router.get('/descargar/*', documentoController.descargarDocumento);
 
 // Eliminar un documento
 router.delete('/:id', verificarToken, verificarRol(['administrador']), documentoController.eliminarDocumento);
 
-// Ruta para subir un archivo (nuevo endpoint)
+// Ruta para subir un archivo
 router.post('/upload', verificarToken, uploadController.upload.single('archivo'), uploadController.subirArchivo);
 
 module.exports = router;

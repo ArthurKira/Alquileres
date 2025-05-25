@@ -23,6 +23,12 @@ class Persona {
         return personas;
     }
 
+    // obtener persona por documento
+    static async obtenerPorDocumento(dni) {
+        const [personas] = await db.query('SELECT * FROM personas WHERE dni = ?', [dni]);
+        return personas[0];
+    }
+
     // Obtener una persona por ID
     static async obtenerPorId(id) {
         const [personas] = await db.query('SELECT * FROM personas WHERE id = ?', [id]);

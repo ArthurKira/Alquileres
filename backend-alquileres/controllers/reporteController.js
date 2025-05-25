@@ -148,6 +148,139 @@ const generarReporteGastos = async (req, res) => {
     }
 };
 
+// NUEVOS CONTROLADORES PARA EL DASHBOARD
+
+// Total de inquilinos por mes
+const totalInquilinosPorMes = async (req, res) => {
+    try {
+        const resultado = await Reporte.totalInquilinosPorMes();
+        res.json(resultado);
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al obtener total de inquilinos por mes', error: error.message });
+    }
+};
+
+// Espacios disponibles vs ocupados
+const espaciosDisponiblesVsOcupados = async (req, res) => {
+    try {
+        const resultado = await Reporte.espaciosDisponiblesVsOcupados();
+        res.json(resultado);
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al obtener espacios disponibles vs ocupados', error: error.message });
+    }
+};
+
+// Ingresos mensuales
+const ingresosMensuales = async (req, res) => {
+    try {
+        const resultado = await Reporte.ingresosMensuales();
+        res.json(resultado);
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al obtener ingresos mensuales', error: error.message });
+    }
+};
+
+// Gastos mensuales
+const gastosMensuales = async (req, res) => {
+    try {
+        const resultado = await Reporte.gastosMensuales();
+        res.json(resultado);
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al obtener gastos mensuales', error: error.message });
+    }
+};
+
+// Contratos activos vs mes anterior
+const contratosActivos = async (req, res) => {
+    try {
+        const resultado = await Reporte.contratosActivos();
+        res.json(resultado);
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al obtener contratos activos', error: error.message });
+    }
+};
+
+// Tasa de ocupación por inmueble
+const tasaOcupacion = async (req, res) => {
+    try {
+        const resultado = await Reporte.tasaOcupacion();
+        res.json(resultado);
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al obtener tasa de ocupación', error: error.message });
+    }
+};
+
+// Contratos por vencer
+const contratosPorVencer = async (req, res) => {
+    try {
+        const resultado = await Reporte.contratosPorVencer();
+        res.json(resultado);
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al obtener contratos por vencer', error: error.message });
+    }
+};
+
+// Pagos pendientes vs pagados por mes
+const pagosPendientesVsPagados = async (req, res) => {
+    try {
+        const resultado = await Reporte.pagosPendientesVsPagados();
+        res.json(resultado);
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al obtener pagos pendientes vs pagados', error: error.message });
+    }
+};
+
+// Contratos vencidos vs renovados por mes
+const contratosVencidosVsRenovados = async (req, res) => {
+    try {
+        const resultado = await Reporte.contratosVencidosVsRenovados();
+        res.json(resultado);
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al obtener contratos vencidos vs renovados', error: error.message });
+    }
+};
+
+// Obtener todos los datos del dashboard en una sola llamada
+const obtenerDatosDashboard = async (req, res) => {
+    try {
+        const [
+            totalInquilinos,
+            espaciosDisponibles,
+            ingresos,
+            gastos,
+            contratos,
+            ocupacion,
+            contratosPorVencer,
+            pagos,
+            contratosVencidos
+        ] = await Promise.all([
+            Reporte.totalInquilinosPorMes(),
+            Reporte.espaciosDisponiblesVsOcupados(),
+            Reporte.ingresosMensuales(),
+            Reporte.gastosMensuales(),
+            Reporte.contratosActivos(),
+            Reporte.tasaOcupacion(),
+            Reporte.contratosPorVencer(),
+            Reporte.pagosPendientesVsPagados(),
+            Reporte.contratosVencidosVsRenovados()
+        ]);
+        
+        res.json({
+            totalInquilinos,
+            espaciosDisponibles,
+            ingresos,
+            gastos,
+            contratos,
+            ocupacion,
+            contratosPorVencer,
+            pagos,
+            contratosVencidos
+        });
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al obtener datos del dashboard', error: error.message });
+    }
+};
+
 module.exports = {
     crearReporte,
     obtenerReportes,
@@ -155,5 +288,16 @@ module.exports = {
     actualizarReporte,
     eliminarReporte,
     generarReportePagos,
-    generarReporteGastos
+    generarReporteGastos,
+    // Nuevos endpoints para dashboard
+    totalInquilinosPorMes,
+    espaciosDisponiblesVsOcupados,
+    ingresosMensuales,
+    gastosMensuales,
+    contratosActivos,
+    tasaOcupacion,
+    contratosPorVencer,
+    pagosPendientesVsPagados,
+    contratosVencidosVsRenovados,
+    obtenerDatosDashboard
 };

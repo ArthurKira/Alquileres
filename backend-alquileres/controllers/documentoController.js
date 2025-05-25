@@ -1,4 +1,7 @@
 const Documento = require('../models/documentoModel');
+const path = require('path');
+const fs = require('fs').promises;
+const jwt = require('jsonwebtoken');
 
 // crear un documento
 const crearDocumento = async (req, res) => {
@@ -12,6 +15,7 @@ const crearDocumento = async (req, res) => {
         res.status(500).json({ mensaje: 'Error al crear el documento', error: error.message });
     }
 };
+
 
 //Actualizar un documento
 const actualizarDocumento = async (req, res) => {
@@ -75,11 +79,84 @@ const eliminarDocumento = async (req, res) => {
     }
 };
 
+
+// Ver documento
+const verDocumento = async (req, res) => {
+    try {
+        // La ruta del archivo estará en req.params[0] debido al comodín *
+        const rutaRelativa = req.params[0];
+        console.log('Ruta relativa recibida:', rutaRelativa);
+        
+        // Construir la ruta absoluta al documento
+        const rutaAbsoluta = path.join(process.cwd(), 'public', rutaRelativa);
+        console.log('Ruta absoluta construida:', rutaAbsoluta);
+        
+        // Verificar si el archivo existe
+        try {
+            await fs.access(rutaAbsoluta);
+            console.log('Archivo encontrado en:', rutaAbsoluta);
+            // Configurar headers para PDF
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', 'inline');
+            // Enviar el archivo
+            res.sendFile(rutaAbsoluta);
+        } catch (error) {
+            console.error('Error al acceder al archivo:', error);
+            return res.status(404).json({ mensaje: 'Documento no encontrado' });
+        }
+    } catch (error) {
+        console.error('Error al ver el documento:', error);
+        res.status(500).json({ mensaje: 'Error al ver el documento', error: error.message });
+    }
+};
+
+// Descargar documento
+const descargarDocumento = async (req, res) => {
+    try {
+        // La ruta del archivo estará en req.params[0] debido al comodín *
+        const rutaRelativa = req.params[0];
+        console.log('Ruta relativa recibida para descarga:', rutaRelativa);
+        
+        // Construir la ruta absoluta al documento
+        const rutaAbsoluta = path.join(process.cwd(), 'public', rutaRelativa);
+        console.log('Ruta absoluta construida para descarga:', rutaAbsoluta);
+        
+        // Verificar si el archivo existe
+        try {
+            await fs.access(rutaAbsoluta);
+            console.log('Archivo encontrado para descarga:', rutaAbsoluta);
+            
+            // Obtener el nombre original del archivo
+            const nombreArchivo = path.basename(rutaRelativa);
+            
+            // Configurar headers para descarga
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename="${nombreArchivo}"`);
+            
+            // Enviar el archivo como descarga
+            res.download(rutaAbsoluta, nombreArchivo, (err) => {
+                if (err) {
+                    console.error('Error durante la descarga:', err);
+                    res.status(500).json({ mensaje: 'Error al descargar el archivo' });
+                }
+            });
+        } catch (error) {
+            console.error('Error al acceder al archivo para descarga:', error);
+            return res.status(404).json({ mensaje: 'Documento no encontrado' });
+        }
+    } catch (error) {
+        console.error('Error al descargar el documento:', error);
+        res.status(500).json({ mensaje: 'Error al descargar el documento', error: error.message });
+    }
+};
+
 module.exports = {
     crearDocumento,
     actualizarDocumento,
     obtenerDocumentos,
     obtenerDocumentoPorId,
     obtenerDocumentosPorDocumentable,
-    eliminarDocumento
+    eliminarDocumento,
+    verDocumento,
+    descargarDocumento
 }

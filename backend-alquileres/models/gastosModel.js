@@ -3,10 +3,10 @@ const db = require('../config/db');
 class Gasto {
     // Crear un gasto
     static async crear(gasto) {
-        const { inmueble_id, tipo_gasto, descripcion, monto, fecha, estado, observaciones } = gasto;
+        const { inmueble_id, tipo_gasto, descripcion, monto, fecha } = gasto;
         const [result] = await db.query(
-            'INSERT INTO gastos (inmueble_id, tipo_gasto, descripcion, monto, fecha, estado, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [inmueble_id, tipo_gasto, descripcion, monto, fecha, estado, observaciones]
+            'INSERT INTO gastos (inmueble_id, tipo_gasto, descripcion, monto, fecha) VALUES (?, ?, ?, ?, ?)',
+            [inmueble_id, tipo_gasto, descripcion, monto, fecha]
         );
         return result.insertId;
     }
