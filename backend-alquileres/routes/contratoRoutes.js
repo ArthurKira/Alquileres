@@ -11,7 +11,7 @@ router.post('/', verificarToken, verificarRol(['administrador', 'propietario']),
 router.get('/', verificarToken, contratoController.obtenerTodosLosContratos);
 
 // Obtener contratos con información detallada
-router.get('/detalles', verificarToken, contratoController.obtenerContratosConInformacion);
+router.get('/detalles', verificarToken, contratoController.obtenerContratosDetalles);
 
 // Obtener contratos con información detallada por inquilino (dni o nombre)
 router.get('/inquilinos/detalles', verificarToken, contratoController.obtenerContratosPorInquilinoConInformacion);
@@ -24,7 +24,6 @@ router.get('/propietarios/:propietarioId', verificarToken, contratoController.ob
 
 //revisar cambio
 router.get('/inmuebles/:inmuebleId', verificarToken, contratoController.obtenerContratosPorInmueble);
-
 
 // Obtener un contrato por ID
 router.get('/:id', verificarToken, contratoController.obtenerContratoPorId);

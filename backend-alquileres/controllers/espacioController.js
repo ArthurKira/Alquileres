@@ -14,9 +14,11 @@ const obtenerEspaciosPorPiso = async (req, res) => {
 // Obtener todos los espacios
 const obtenerEspacios = async (req, res) => {
     try {
-        const espacios = await Espacio.obtenerTodos(); // Asegúrate de que el modelo Espacio tenga este método
+        const espacios = await Espacio.obtenerEspacioCompleto();
+        console.log('Espacios obtenidos del modelo:', espacios);
         res.json(espacios);
     } catch (error) {
+        console.error('Error al obtener los espacios:', error);
         res.status(500).json({ mensaje: 'Error al obtener los espacios', error: error.message });
     }
 };
@@ -45,12 +47,14 @@ const obtenerEspacioPorId = async (req, res) => {
     }
 };
 
-// Obtener todos los espacios
+// Obtener todos los espacios con información completa
 const obtenerEspacio = async (req, res) => {
     try {
-        const espacios = await Espacio.obtenerEspacio();
+        const espacios = await Espacio.obtenerEspacioCompleto();
+        console.log('Espacios con información completa:', espacios);
         res.json(espacios);
     } catch (error) {
+        console.error('Error al obtener los espacios:', error);
         res.status(500).json({ mensaje: 'Error al obtener los espacios', error: error.message });
     }
 };

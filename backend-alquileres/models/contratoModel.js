@@ -194,35 +194,29 @@ class Contrato {
         }
     }
 
-    // Obtener contratos con información detallada
-    static async obtenerConInformacion() {
-        const [contratos] = await db.query(`
-            SELECT
-                c.id,
-                c.fecha_inicio,
-                c.fecha_fin,
-                c.monto_alquiler,
-                c.monto_garantia,
-                c.descripcion,
-                c.documento,
-                c.estado,
-                c.fecha_pago,
-                p.dni AS inquilino_dni,
-                p.nombre AS inquilino_nombre,
-                p.apellido AS inquilino_apellido,
-                p.email AS inquilino_email,
-                p.telefono AS inquilino_telefono,
-                i.nombre AS inmueble_nombre,
-                e.nombre AS espacio_nombre,
-                e.descripcion AS espacio_descripcion,
-                e.precio AS espacio_precio
-            FROM contratos c
-            LEFT JOIN personas p ON c.inquilino_id = p.id
-            LEFT JOIN inmuebles i ON c.inmueble_id = i.id
-            LEFT JOIN espacios e ON c.espacio_id = e.id
-            ORDER BY c.id DESC
-        `);
-        return contratos;
+    // Obtener todos los contratos con detalles
+    static async obtenerContratosDetalles() {
+        try {
+            const [contratos] = await db.query(`
+                SELECT 
+                    c.*,
+                    p.nombre as inquilino_nombre,
+                    p.apellido as inquilino_apellido,
+                    p.email as inquilino_email,
+                    p.telefono as inquilino_telefono,
+                    p.dni as inquilino_dni,
+                    i.nombre as inmueble_nombre,
+                    e.nombre as espacio_nombre
+                FROM contratos c
+                LEFT JOIN personas p ON c.inquilino_id = p.id
+                LEFT JOIN espacios e ON c.espacio_id = e.id
+                LEFT JOIN inmuebles i ON c.inmueble_id = i.id
+                ORDER BY c.fecha_inicio DESC
+            `);
+            return contratos;
+        } catch (error) {
+            throw new Error(`Error al obtener los contratos con detalles: ${error.message}`);
+        }
     }
 }
 

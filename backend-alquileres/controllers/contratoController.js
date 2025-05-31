@@ -145,6 +145,20 @@ const obtenerContratosConInfo = async (req, res) => {
     }
 };
 
+// Obtener todos los contratos con detalles
+const obtenerContratosDetalles = async (req, res) => {
+    try {
+        const contratos = await Contrato.obtenerContratosDetalles();
+        res.json(contratos);
+    } catch (error) {
+        console.error('Error al obtener contratos con detalles:', error);
+        res.status(500).json({ 
+            mensaje: 'Error al obtener los contratos con detalles',
+            error: error.message 
+        });
+    }
+};
+
 module.exports = {
     crearContrato,
     obtenerTodosLosContratos,
@@ -156,5 +170,6 @@ module.exports = {
     obtenerContratoPorId,
     actualizarContrato,
     eliminarContrato,
-    obtenerContratosConInfo
+    obtenerContratosConInfo,
+    obtenerContratosDetalles
 };

@@ -25,19 +25,12 @@ const app = express();
 
 // Middlewares
 const corsOptions = {
-    origin: 'http://localhost:3001', // Cambia al puerto real de tu frontend
+    origin: 'http://localhost:3001',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: [
-        'Content-Type', 
-        'Authorization', 
-        'X-Documentable-ID', 
-        'X-Documentable-Type'
-    ],
-    credentials: true,
-    exposedHeaders: ['Content-Disposition'],
-    maxAge: 86400 // 24 horas en segundos
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
 };
-  
+
 app.use(cors(corsOptions));
 app.use(express.json());
 
@@ -45,18 +38,18 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/personas', personaRoutes);
 app.use('/api/inmuebles', inmuebleRoutes);
-app.use('/api/espacios', espacioRoutes);//espacios
+app.use('/api/espacios', espacioRoutes);
 app.use('/api/reservas', reservaRoutes);
 app.use('/api/tipos-espacio', tipoEspacioRoutes);
 app.use('/api/tipoInmueble', tipoInmuebleRoutes);
 app.use('/api/pisos', pisoRoutes);
 app.use('/api/pagos', pagoRoutes);
 app.use('/api/contratos', contratoRoutes);
-app.use('/api/pagos-adicionales', pagoAdicionalRoutes); // Nueva línea
-app.use('/api/reportes', reporteRoutes); // Nueva línea
-app.use('/api/detalles-reportes', detalleReporteRoutes); // Nueva línea
-app.use('/api/gastos', gastoRoutes); // Nueva línea
-app.use('/api/documentos', documentoRoutes); // Nueva línea
+app.use('/api/pagos-adicionales', pagoAdicionalRoutes);
+app.use('/api/reportes', reporteRoutes);
+app.use('/api/detalles-reportes', detalleReporteRoutes);
+app.use('/api/gastos', gastoRoutes);
+app.use('/api/documentos', documentoRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
 // Ruta de prueba

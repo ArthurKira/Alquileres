@@ -61,14 +61,34 @@ class Espacio {
         return result.affectedRows > 0;
     }
 
-    // Obtener todos los espacios
+    // Obtener todos los espacios con información completa
+    static async obtenerEspacioCompleto() {
+        try {
+            const query = `
+                SELECT 
+                    e.*,
+                    t.nombre AS tipo_espacio,
+                    p.nombre AS piso_nombre,
+                    i.nombre AS inmueble_nombre
+                FROM espacios e
+                LEFT JOIN tipoEspacios t ON e.tipoEspacio_id = t.id
+                LEFT JOIN pisos p ON e.piso_id = p.id
+                LEFT JOIN inmuebles i ON p.inmueble_id = i.id
+            `;
+            
+            const [espacios] = await db.query(query);
+            console.log('Query ejecutada:', query);
+            console.log('Resultados de la base de datos:', espacios);
+            return espacios;
+        } catch (error) {
+            console.error('Error en obtenerEspacioCompleto:', error);
+            throw error;
+        }
+    }
+
+    // Mantener el método original para compatibilidad
     static async obtenerEspacio() {
-        const [espaciosG] = await db.query(`
-            SELECT e.*, t.nombre AS tipo_espacio
-            FROM espacios e
-                     JOIN tipoEspacios t ON e.tipoEspacio_id = t.id
-        `);
-        return espaciosG;
+        return this.obtenerEspacioCompleto();
     }
 }
 
