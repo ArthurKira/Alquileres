@@ -118,7 +118,8 @@ const generarReporteGastos = async (req, res) => {
             const gastosPorTipo = {};
             
             gastos.forEach(gasto => {
-                if (typeof gasto.monto === 'number') totalMonto += gasto.monto;
+                const monto = parseFloat(gasto.monto);
+                totalMonto += monto;
                 
                 // Agrupar por tipo de gasto
                 if (!gastosPorTipo[gasto.tipo_gasto]) {
@@ -129,14 +130,19 @@ const generarReporteGastos = async (req, res) => {
                 }
                 
                 gastosPorTipo[gasto.tipo_gasto].cantidad++;
-                gastosPorTipo[gasto.tipo_gasto].monto_total += gasto.monto || 0;
+                gastosPorTipo[gasto.tipo_gasto].monto_total += monto;
+            });
+            
+            // Formatear los montos totales
+            Object.keys(gastosPorTipo).forEach(tipo => {
+                gastosPorTipo[tipo].monto_total = gastosPorTipo[tipo].monto_total.toFixed(2);
             });
             
             return res.json({
                 datos: gastos,
                 estadisticas: {
                     total_registros: gastos.length,
-                    total_monto: totalMonto,
+                    total_monto: totalMonto.toFixed(2),
                     gastos_por_tipo: gastosPorTipo
                 }
             });
