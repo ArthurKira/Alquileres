@@ -57,4 +57,11 @@ router.get('/dashboard/pagos', verificarToken, reporteController.pagosPendientes
 // Contratos vencidos vs renovados por mes
 router.get('/dashboard/contratos-renovados', verificarToken, reporteController.contratosVencidosVsRenovados);
 
+// Estadísticas generales del sistema
+router.get('/estadisticas/generales', 
+    verificarToken, 
+    verificarRol(['administrador', 'propietario']), 
+    reporteController.obtenerEstadisticasGenerales
+);
+
 module.exports = router;

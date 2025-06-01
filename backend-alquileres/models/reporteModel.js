@@ -140,18 +140,9 @@ class Reporte {
     // Total de inquilinos por mes
     static async totalInquilinosPorMes() {
         const query = `
-            SELECT 
-                DATE_FORMAT(c.fecha_inicio, '%Y-%m') AS mes,
-                COUNT(DISTINCT c.inquilino_id) AS total_inquilinos
-            FROM 
-                contratos c
-            WHERE 
-                c.fecha_inicio >= DATE_SUB(CURRENT_DATE(), INTERVAL 2 MONTH)
-            GROUP BY 
-                DATE_FORMAT(c.fecha_inicio, '%Y-%m')
-            ORDER BY 
-                mes DESC
-            LIMIT 2
+            SELECT COUNT(DISTINCT inquilino_id) as total_inquilinos
+            FROM contratos
+            WHERE estado = 'activo'
         `;
         
         const [resultados] = await db.query(query);
@@ -403,6 +394,169 @@ class Reporte {
         const [resultados] = await db.query(query);
         return resultados;
     }
+
+    // Estadísticas generales del sistema
+    static async estadisticasGenerales() {
+        // Consultas SQL
+        const queryInquilinosActivos = `
+            SELECT COUNT(DISTINCT inquilino_id) as total_inquilinos_activos
+            FROM contratos
+            WHERE estado = 'activo'
+        `;
+    
+        const queryTotalInquilinos = `
+            SELECT COUNT(*) as total_inquilinos_registrados
+            FROM personas
+            WHERE rol = 'inquilino'
+        `;
+    
+        const queryEspacios = `
+            SELECT 
+                COUNT(e.id) AS total_espacios,
+                SUM(CASE WHEN EXISTS (
+                    SELECT 1 FROM contratos c 
+                    WHERE c.espacio_id = e.id 
+                    AND c.estado = 'activo'
+                ) THEN 1 ELSE 0 END) AS espacios_ocupados,
+                SUM(CASE WHEN NOT EXISTS (
+                    SELECT 1 FROM contratos c 
+                    WHERE c.espacio_id = e.id 
+                    AND c.estado = 'activo'
+                ) THEN 1 ELSE 0 END) AS espacios_disponibles
+            FROM espacios e
+        `;
+    
+        const queryContratosPorVencer = `
+            SELECT 
+                c.id,
+                c.fecha_inicio,
+                c.fecha_fin,
+                i.nombre AS inmueble_nombre,
+                e.nombre AS espacio_nombre,
+                CONCAT(p.nombre, ' ', p.apellido) AS inquilino_nombre,
+                p.dni AS inquilino_dni,
+                DATEDIFF(c.fecha_fin, CURRENT_DATE()) AS dias_restantes
+            FROM 
+                contratos c
+            JOIN 
+                inmuebles i ON c.inmueble_id = i.id
+            JOIN 
+                espacios e ON c.espacio_id = e.id
+            JOIN 
+                personas p ON c.inquilino_id = p.id
+            WHERE 
+                c.estado = 'activo'
+                AND c.fecha_fin BETWEEN CURRENT_DATE() AND DATE_ADD(CURRENT_DATE(), INTERVAL 15 DAY)
+            ORDER BY 
+                c.fecha_fin ASC
+        `;
+    
+        const queryIngresosMensuales = `
+            SELECT 
+                DATE_FORMAT(p.fecha_pago, '%Y-%m') AS mes,
+                SUM(p.monto) AS total_ingresos
+            FROM 
+                pagos p
+            WHERE 
+                p.estado = 'pagado'
+                AND p.fecha_pago >= DATE_SUB(CURRENT_DATE(), INTERVAL 6 MONTH)
+            GROUP BY 
+                DATE_FORMAT(p.fecha_pago, '%Y-%m')
+            ORDER BY 
+                mes DESC
+        `;
+
+        //ingresos por garantia de contrato activo
+        const queryIngresosGarantia = `
+            SELECT  SUM(c.monto_garantia) as total_ingresos_garantia from contratos as c where  estado = 'activo'
+        `;
+
+        //ingresos mensuales previstos
+        const queryIngresosMensualesPrevistos = `
+            SELECT 
+                DATE_FORMAT(p.fecha_pago, '%Y-%m') AS mes,
+                SUM(p.monto) AS total_ingresos
+            FROM 
+                pagos p
+            WHERE 
+                p.fecha_pago >= DATE_SUB(CURRENT_DATE(), INTERVAL 6 MONTH)
+            GROUP BY 
+                DATE_FORMAT(p.fecha_pago, '%Y-%m')
+            ORDER BY 
+                mes DESC
+        `;
+
+        //gastos mensuales
+        const queryGastosMensuales = `
+            SELECT 
+                DATE_FORMAT(g.fecha, '%Y-%m') AS mes,
+                SUM(g.monto) AS total_gastos
+            FROM 
+                gastos g    
+            WHERE 
+                g.fecha >= DATE_SUB(CURRENT_DATE(), INTERVAL 6 MONTH)
+            GROUP BY 
+                DATE_FORMAT(g.fecha, '%Y-%m')
+            ORDER BY 
+                mes DESC
+        `;
+    
+        try {
+            // Ejecutar todas las consultas en paralelo
+            const [
+                [inquilinosActivosRes],
+                [totalInquilinosRes],
+                [espaciosRes],
+                [contratosPorVencer],
+                [ingresosMensuales],
+                [ingresosGarantia],
+                [ingresosMensualesPrevistos],
+                [gastosMensuales]
+            ] = await Promise.all([
+                db.query(queryInquilinosActivos),
+                db.query(queryTotalInquilinos),
+                db.query(queryEspacios),
+                db.query(queryContratosPorVencer),
+                db.query(queryIngresosMensuales),
+                db.query(queryIngresosGarantia),
+                db.query(queryIngresosMensualesPrevistos),
+                db.query(queryGastosMensuales)
+            ]);
+    
+            // Log para depuración (puedes quitarlo en producción)
+            console.log({
+                inquilinosActivosRes,
+                totalInquilinosRes,
+                espaciosRes,
+                contratosPorVencer,
+                ingresosMensuales,
+                ingresosGarantia,
+                ingresosMensualesPrevistos,
+                gastosMensuales
+            });
+    
+            return {
+                inquilinos: {
+                    activos: inquilinosActivosRes?.[0]?.total_inquilinos_activos ?? 0,
+                    total: totalInquilinosRes?.[0]?.total_inquilinos_registrados ?? 0
+                },
+                espacios: {
+                    total: espaciosRes?.[0]?.total_espacios ?? 0,
+                    ocupados: espaciosRes?.[0]?.espacios_ocupados ?? 0,
+                    disponibles: espaciosRes?.[0]?.espacios_disponibles ?? 0
+                },
+                contratos_por_vencer: contratosPorVencer ?? [],
+                ingresos_mensuales: ingresosMensuales ?? [],
+                ingresos_garantia: ingresosGarantia ?? [],
+                ingresos_mensuales_previstos: ingresosMensualesPrevistos ?? [],
+                gastos_mensuales: gastosMensuales ?? []
+            };
+        } catch (error) {
+            console.error('Error en estadísticasGenerales:', error);
+            throw error;
+        }
+    }
+    
 }
 
 module.exports = Reporte;

@@ -287,6 +287,20 @@ const obtenerDatosDashboard = async (req, res) => {
     }
 };
 
+// Obtener estadísticas generales del sistema
+const obtenerEstadisticasGenerales = async (req, res) => {
+    try {
+        const estadisticas = await Reporte.estadisticasGenerales();
+        res.json(estadisticas);
+    } catch (error) {
+        console.error('Error al obtener estadísticas generales:', error);
+        res.status(500).json({ 
+            mensaje: 'Error al obtener estadísticas generales', 
+            error: error.message 
+        });
+    }
+};
+
 module.exports = {
     crearReporte,
     obtenerReportes,
@@ -305,5 +319,6 @@ module.exports = {
     contratosPorVencer,
     pagosPendientesVsPagados,
     contratosVencidosVsRenovados,
-    obtenerDatosDashboard
+    obtenerDatosDashboard,
+    obtenerEstadisticasGenerales
 };
