@@ -13,7 +13,7 @@ const verificarToken = (req, res, next) => {
         req.usuario = decoded; // Añade el payload del token a la solicitud
         next();
     } catch (error) {
-        res.status(400).json({ mensaje: 'Token inválido' });
+        res.status(401).json({ mensaje: 'Token inválido' });
     }
 };
 

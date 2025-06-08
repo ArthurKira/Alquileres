@@ -22,4 +22,6 @@ router.get('/perfil', verificarToken, (req, res) => {
     res.json({ mensaje: 'Bienvenido a tu perfil', usuario: req.usuario });
 });
 
+router.post('/cambiar-contrasena', verificarToken, authController.cambiarContrasena);
+
 module.exports = router;

@@ -25,7 +25,7 @@ const app = express();
 
 // Middlewares
 const corsOptions = {
-    origin: ['https://rentahab.com'], 
+    origin: ['https://rentahab.com','http://localhost:3001'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true

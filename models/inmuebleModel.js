@@ -3,27 +3,61 @@ const db = require('../config/db');
 class Inmueble {
     // Crear un inmueble
     static async crear(inmueble) {
-        const { propietario_id, tipoInmueble_id, nombre, descripcion, direccion, ubigeo, cantidad_pisos, estado } = inmueble;
-        
-        const [result] = await db.query(
-            'INSERT INTO inmuebles (propietario_id, tipoInmueble_id, nombre, descripcion, direccion, ubigeo, cantidad_pisos, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            [propietario_id, tipoInmueble_id, nombre, descripcion, direccion, ubigeo, cantidad_pisos, estado]
-            
-        );
-    
-        const idinmueble = result.insertId;
-        console.log('ID del inmueble creado:', idinmueble);
-        for (let i = 1; i <= cantidad_pisos; i++) {
-            const nombrePiso = `Piso ${i}`;
-            await db.query(
-                'INSERT INTO pisos (inmueble_id, nombre) VALUES (?, ?)',
-                [idinmueble, nombrePiso]
+        const {
+            propietario_id,
+            tipoInmueble_id,
+            nombre,
+            descripcion,
+            direccion,
+            ubigeo,
+            cantidad_pisos = 0,
+            cantidad_sotanos = 0,
+            estado
+        } = inmueble;
+
+        const connection = await db.getConnection();
+        try {
+            await connection.beginTransaction();
+
+            // Insertar inmueble
+            const [result] = await connection.query(
+                `INSERT INTO inmuebles 
+            (propietario_id, tipoInmueble_id, nombre, descripcion, direccion, ubigeo, cantidad_pisos, cantidad_sotanos, estado) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [propietario_id, tipoInmueble_id, nombre, descripcion, direccion, ubigeo, cantidad_pisos, cantidad_sotanos, estado]
             );
+            const idinmueble = result.insertId;
+            console.log('ID del inmueble creado:', idinmueble);
+
+            // Preparar registros de pisos y sótanos
+            const pisosData = [];
+            for (let i = 1; i <= cantidad_sotanos; i++) {
+                pisosData.push([idinmueble, `Sótano ${i}`, 'sotano']);
+            }
+            for (let i = 1; i <= cantidad_pisos; i++) {
+                pisosData.push([idinmueble, `Piso ${i}`, 'piso']);
+            }
+
+            // Bulk insert para eficiencia
+            if (pisosData.length) {
+                await connection.query(
+                    'INSERT INTO pisos (inmueble_id, nombre, tipo) VALUES ?;',
+                    [pisosData]
+                );
+                console.log(`Se crearon ${pisosData.length} pisos/sótanos para inmueble ${idinmueble}`);
+            }
+
+            await connection.commit();
+            return idinmueble;
+
+        } catch (error) {
+            await connection.rollback();
+            console.error('Error al crear inmueble y pisos:', error);
+            throw error;  // Propaga el error para manejarlo en capas superiores
+        } finally {
+            connection.release();
         }
-        console.log('Pisos creados para el inmueble:', idinmueble);
-        return idinmueble;
     }
-    
 
     //Obtener inmuebles por propietario
     static async obtenerPorPropietario(propietarioId) {
