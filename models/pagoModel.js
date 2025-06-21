@@ -27,10 +27,16 @@ class Pago {
                 contratos.inquilino_id,
                 personas.nombre AS inquilino_nombre,
                 personas.apellido AS inquilino_apellido,
-                personas.dni AS inquilino_dni
+                personas.dni AS inquilino_dni,
+                espacios.nombre AS  nombre_habitacion,
+                pisos.nombre AS piso,
+                inmuebles.nombre AS nombre_inmueble
             FROM pagos
-            LEFT JOIN contratos ON pagos.contrato_id = contratos.id
-            LEFT JOIN personas ON contratos.inquilino_id = personas.id
+                     LEFT JOIN contratos ON pagos.contrato_id = contratos.id
+                     LEFT JOIN personas ON contratos.inquilino_id = personas.id
+                     LEFT JOIN espacios ON contratos.espacio_id = espacios.id
+                     LEFT JOIN pisos  ON espacios.piso_id = pisos.id
+                     LEFT JOIN inmuebles ON pisos.inmueble_id = inmuebles.id
             ORDER BY pagos.id DESC
         `);
         return pagos;
