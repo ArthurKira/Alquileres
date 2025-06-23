@@ -1,23 +1,37 @@
 const Documento = require('../models/documentoModel');
-const path = require('path');
-const fs = require('fs').promises;
-const jwt = require('jsonwebtoken');
+const { GetObjectCommand } = require('@aws-sdk/client-s3');
+const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
+const { s3 } = require('../config/s3');
 
 // crear un documento
-const crearDocumento = async (req, res) => {
+const crearDocumento = async (documentoData) => {
     try {
-        console.log('📥 Datos recibidos en req.body:', req.body);
-        const nuevoDocumento = req.body;
-        const idDocumento = await Documento.crear(nuevoDocumento);
-        res.status(201).json({ mensaje: 'Documento creado exitosamente', id: idDocumento });
+        console.log('📥 Datos recibidos para crear documento:', documentoData);
+        
+        if (!documentoData.documentable_id || !documentoData.documentable_type) {
+            throw new Error('documentable_id y documentable_type son requeridos');
+        }
+
+        const idDocumento = await Documento.crear(documentoData);
+        return { id: idDocumento, mensaje: 'Documento creado exitosamente' };
     } catch (error) {
         console.error('❌ Error al crear el documento:', error);
+        throw error;
+    }
+};
+
+// Endpoint para crear documento (para API REST)
+const crearDocumentoEndpoint = async (req, res) => {
+    try {
+        const resultado = await crearDocumento(req.body);
+        res.status(201).json(resultado);
+    } catch (error) {
+        console.error('❌ Error en endpoint de crear documento:', error);
         res.status(500).json({ mensaje: 'Error al crear el documento', error: error.message });
     }
 };
 
-
-//Actualizar un documento
+// Actualizar un documento
 const actualizarDocumento = async (req, res) => {
     try {
         const { id } = req.params;
@@ -31,7 +45,7 @@ const actualizarDocumento = async (req, res) => {
     }
 };
 
-//Obtener todos los documentos
+// Obtener todos los documentos
 const obtenerDocumentos = async (req, res) => {
     try {
         const documentos = await Documento.obtenerTodos();
@@ -54,7 +68,7 @@ const obtenerDocumentoPorId = async (req, res) => {
     }
 };
 
-// Obtener un por documentable_id y documentable_type(contrato,pago,gasto)
+// Obtener documentos por documentable_id y documentable_type
 const obtenerDocumentosPorDocumentable = async (req, res) => {
     try {
         const { documentable_id, documentable_type } = req.params;
@@ -69,89 +83,140 @@ const obtenerDocumentosPorDocumentable = async (req, res) => {
 const eliminarDocumento = async (req, res) => {
     try {
         const { id } = req.params;
-        const eliminado = await Documento.eliminar(id);
-        if (!eliminado) {
+        const documento = await Documento.obtenerPorId(id);
+        
+        if (!documento) {
             return res.status(404).json({ mensaje: 'Documento no encontrado' });
         }
+
+        // Eliminar de S3
+        try {
+            await s3.deleteObject({
+                Bucket: process.env.AWS_BUCKET_NAME,
+                Key: documento.key
+            });
+        } catch (s3Error) {
+            console.error('Error al eliminar de S3:', s3Error);
+        }
+
+        // Eliminar de la base de datos
+        await Documento.eliminar(id);
         res.json({ mensaje: 'Documento eliminado exitosamente' });
     } catch (error) {
         res.status(500).json({ mensaje: 'Error al eliminar el documento', error: error.message });
     }
 };
 
-
-// Ver documento
+// Ver documento (genera URL firmada para ver)
 const verDocumento = async (req, res) => {
     try {
-        // La ruta del archivo estará en req.params[0] debido al comodín *
-        const rutaRelativa = req.params[0];
-        console.log('Ruta relativa recibida:', rutaRelativa);
-        
-        // Construir la ruta absoluta al documento
-        const rutaAbsoluta = path.join(process.cwd(), 'public', rutaRelativa);
-        console.log('Ruta absoluta construida:', rutaAbsoluta);
-        
-        // Verificar si el archivo existe
-        try {
-            await fs.access(rutaAbsoluta);
-            console.log('Archivo encontrado en:', rutaAbsoluta);
-            // Configurar headers para PDF
-            res.setHeader('Content-Type', 'application/pdf');
-            res.setHeader('Content-Disposition', 'inline');
-            // Enviar el archivo
-            res.sendFile(rutaAbsoluta);
-        } catch (error) {
-            console.error('Error al acceder al archivo:', error);
-            return res.status(404).json({ mensaje: 'Documento no encontrado' });
+        let key = req.params[0]; // Usar el comodín de la ruta
+        console.log('🔍 Intentando ver documento con key original:', key);
+
+        // Verificar que la key no esté vacía
+        if (!key) {
+            console.error('❌ Key no proporcionada');
+            return res.status(400).json({ mensaje: 'Key del documento no proporcionada' });
         }
+
+        // Si la key no comienza con 'documentos/', agregarla
+        if (!key.startsWith('documentos/')) {
+            key = `documentos/${key}`;
+            console.log('🔄 Key modificada con prefijo:', key);
+        }
+
+        // Buscar el documento en la base de datos
+        const documento = await Documento.obtenerPorKey(key);
+        
+        if (!documento) {
+            console.error('❌ Documento no encontrado en BD para key:', key);
+            return res.status(404).json({ mensaje: 'Documento no encontrado en la base de datos' });
+        }
+
+        console.log('📄 Documento encontrado:', documento);
+
+        // Generar comando para S3
+        const command = new GetObjectCommand({
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: documento.key,
+            ResponseContentType: 'application/pdf'
+        });
+
+        // Generar URL firmada
+        const url = await getSignedUrl(s3, command, { expiresIn: 3600 }); // URL válida por 1 hora
+        console.log('🔗 URL firmada generada');
+
+        res.json({ 
+            url,
+            nombre: documento.nombre,
+            tipo: documento.tipo
+        });
     } catch (error) {
-        console.error('Error al ver el documento:', error);
-        res.status(500).json({ mensaje: 'Error al ver el documento', error: error.message });
+        console.error('❌ Error al generar URL de visualización:', error);
+        res.status(500).json({ 
+            mensaje: 'Error al obtener URL del documento',
+            error: error.message 
+        });
     }
 };
 
-// Descargar documento
+// Descargar documento (genera URL firmada para descarga)
 const descargarDocumento = async (req, res) => {
     try {
-        // La ruta del archivo estará en req.params[0] debido al comodín *
-        const rutaRelativa = req.params[0];
-        console.log('Ruta relativa recibida para descarga:', rutaRelativa);
-        
-        // Construir la ruta absoluta al documento
-        const rutaAbsoluta = path.join(process.cwd(), 'public', rutaRelativa);
-        console.log('Ruta absoluta construida para descarga:', rutaAbsoluta);
-        
-        // Verificar si el archivo existe
-        try {
-            await fs.access(rutaAbsoluta);
-            console.log('Archivo encontrado para descarga:', rutaAbsoluta);
-            
-            // Obtener el nombre original del archivo
-            const nombreArchivo = path.basename(rutaRelativa);
-            
-            // Configurar headers para descarga
-            res.setHeader('Content-Type', 'application/pdf');
-            res.setHeader('Content-Disposition', `attachment; filename="${nombreArchivo}"`);
-            
-            // Enviar el archivo como descarga
-            res.download(rutaAbsoluta, nombreArchivo, (err) => {
-                if (err) {
-                    console.error('Error durante la descarga:', err);
-                    res.status(500).json({ mensaje: 'Error al descargar el archivo' });
-                }
-            });
-        } catch (error) {
-            console.error('Error al acceder al archivo para descarga:', error);
-            return res.status(404).json({ mensaje: 'Documento no encontrado' });
+        let key = req.params[0]; // Usar el comodín de la ruta
+        console.log('🔍 Intentando descargar documento con key original:', key);
+
+        // Verificar que la key no esté vacía
+        if (!key) {
+            console.error('❌ Key no proporcionada');
+            return res.status(400).json({ mensaje: 'Key del documento no proporcionada' });
         }
+
+        // Si la key no comienza con 'documentos/', agregarla
+        if (!key.startsWith('documentos/')) {
+            key = `documentos/${key}`;
+            console.log('🔄 Key modificada con prefijo:', key);
+        }
+
+        // Buscar el documento en la base de datos
+        const documento = await Documento.obtenerPorKey(key);
+        
+        if (!documento) {
+            console.error('❌ Documento no encontrado en BD para key:', key);
+            return res.status(404).json({ mensaje: 'Documento no encontrado en la base de datos' });
+        }
+
+        console.log('📄 Documento encontrado:', documento);
+
+        // Generar comando para S3
+        const command = new GetObjectCommand({
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: documento.key,
+            ResponseContentType: 'application/pdf',
+            ResponseContentDisposition: `attachment; filename="${documento.nombre}"`
+        });
+
+        // Generar URL firmada
+        const url = await getSignedUrl(s3, command, { expiresIn: 300 }); // URL válida por 5 minutos
+        console.log('🔗 URL firmada generada para descarga');
+
+        res.json({ 
+            url,
+            nombre: documento.nombre,
+            tipo: documento.tipo
+        });
     } catch (error) {
-        console.error('Error al descargar el documento:', error);
-        res.status(500).json({ mensaje: 'Error al descargar el documento', error: error.message });
+        console.error('❌ Error al generar URL de descarga:', error);
+        res.status(500).json({ 
+            mensaje: 'Error al generar URL de descarga',
+            error: error.message 
+        });
     }
 };
 
 module.exports = {
     crearDocumento,
+    crearDocumentoEndpoint,
     actualizarDocumento,
     obtenerDocumentos,
     obtenerDocumentoPorId,
@@ -159,4 +224,4 @@ module.exports = {
     eliminarDocumento,
     verDocumento,
     descargarDocumento
-}
+};
