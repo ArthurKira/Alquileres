@@ -29,6 +29,13 @@ router.put(
     espacioController.actualizarEspacio
 );
 
+// Cambiar estado del espacio
+router.put('/estado/:id',
+    verificarToken,
+    verificarRol(['administrador']),
+    espacioController.cambiarEstado
+);
+
 // Eliminar un espacio
 router.delete(
     '/inmuebles/:inmuebleId/pisos/:pisoId/espacios/:espacioId',

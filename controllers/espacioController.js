@@ -99,6 +99,40 @@ const eliminarEspacio = async (req, res) => {
     }
 };
 
+// Cambiar el estado de un espacio
+const cambiarEstado = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { estado } = req.body;
+
+        // Validar que el estado sea 0 o 1 (números que corresponden a la BD)
+        if (![0, 1].includes(estado)) {
+            return res.status(400).json({
+                mensaje: 'Estado no válido. Debe ser 0 (disponible) o 1 (ocupado)'
+            });
+        }
+
+        const actualizado = await Espacio.actualizarEstado(id, estado);
+
+        if (!actualizado) {
+            return res.status(404).json({
+                mensaje: 'Espacio no encontrado'
+            });
+        }
+
+        res.json({
+            mensaje: 'Estado actualizado exitosamente',
+            estado: estado
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            mensaje: 'Error al actualizar estado',
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     obtenerEspaciosPorPiso,
     obtenerEspacioPorId,
@@ -106,5 +140,6 @@ module.exports = {
     crearEspacio,
     actualizarEspacio,
     eliminarEspacio,
-    obtenerEspacio
+    obtenerEspacio,
+    cambiarEstado
 };

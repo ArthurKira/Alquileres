@@ -61,6 +61,15 @@ class Espacio {
         return result.affectedRows > 0;
     }
 
+    // Actualizar solo el estado de un espacio
+    static async actualizarEstado(id, estado) {
+        const [result] = await db.query(
+            'UPDATE espacios SET estado = ? WHERE id = ?',
+            [estado, id]
+        );
+        return result.affectedRows > 0;
+    }
+
     // Obtener todos los espacios con información completa
     static async obtenerEspacioCompleto() {
         try {
