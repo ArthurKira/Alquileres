@@ -2,21 +2,24 @@ const mysql = require('mysql2');
 require('dotenv').config();
 
 const pool = mysql.createPool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'alquileres',
     port: process.env.DB_PORT || 3306,
     waitForConnections: true,
-    connectionLimit: 10,
+    connectionLimit: process.env.NODE_ENV === 'production' ? 5 : 10,
     queueLimit: 0,
     // Configuraciones para conexiones remotas en producción
     acquireTimeout: 120000,       // 2 minutos para Render
-    connectTimeout: 120000,       // 2 minutos timeout de conexión
     keepAliveInitialDelay: 0,     // Mantener conexión viva
     enableKeepAlive: true,        // Habilitar keep-alive
     multipleStatements: false,    // Seguridad: deshabilitar múltiples statements
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+    ssl: process.env.NODE_ENV === 'production' && process.env.DB_SSL === 'true' 
+        ? { rejectUnauthorized: false } : false,
+    // Configuración específica para hosting
+    charset: 'utf8mb4',
+    timezone: 'Z'
 });
 
 // Event listeners para monitorear la conexión
