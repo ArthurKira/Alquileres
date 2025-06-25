@@ -25,9 +25,7 @@ const app = express();
 
 // Middlewares
 const corsOptions = {
-    origin: process.env.NODE_ENV === 'production' 
-        ? ['https://rentahab.com', process.env.FRONTEND_URL].filter(Boolean)
-        : ['http://localhost:3001', 'http://localhost:3000'],
+    origin: ['https://rentahab.com','http://localhost:3001'],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true
@@ -56,32 +54,11 @@ app.use('/api/dashboard', dashboardRoutes);
 
 // Ruta de prueba
 app.get('/', (req, res) => {
-    res.json({ 
-        mensaje: 'Backend de Alquileres funcionando',
-        puerto: process.env.PORT || 3000,
-        entorno: process.env.NODE_ENV || 'development',
-        timestamp: new Date().toISOString()
-    });
-});
-
-// Middleware de manejo de errores global
-app.use((err, req, res, next) => {
-    console.error('Error no manejado:', err);
-    res.status(500).json({ 
-        mensaje: 'Error interno del servidor',
-        error: process.env.NODE_ENV === 'development' ? err.message : 'Error interno'
-    });
-});
-
-// Manejar rutas no encontradas
-app.use('*', (req, res) => {
-    res.status(404).json({ mensaje: 'Ruta no encontrada' });
+    res.send('Backend de Alquileres funcionando');
 });
 
 // Iniciar el servidor
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Servidor corriendo en el puerto ${PORT}`);
-    console.log(`🌍 Entorno: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`📊 Base de datos: ${process.env.DB_HOST || 'localhost'}`);
+app.listen(PORT, () => {
+    console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
