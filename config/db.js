@@ -6,14 +6,17 @@ const pool = mysql.createPool({
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
+    port: process.env.DB_PORT || 3306,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
-    // Configuraciones para conexiones remotas inestables
-    acquireTimeout: 60000,        // Tiempo máximo para obtener conexión (60s)
+    // Configuraciones para conexiones remotas en producción
+    acquireTimeout: 120000,       // 2 minutos para Render
+    connectTimeout: 120000,       // 2 minutos timeout de conexión
     keepAliveInitialDelay: 0,     // Mantener conexión viva
     enableKeepAlive: true,        // Habilitar keep-alive
-    multipleStatements: false     // Seguridad: deshabilitar múltiples statements
+    multipleStatements: false,    // Seguridad: deshabilitar múltiples statements
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
 
 // Event listeners para monitorear la conexión
